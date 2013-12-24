@@ -69,7 +69,7 @@
   <link rel="shortcut icon" type="image/ico" href="/favicon.ico"/>
   <!-- 添加 favicon icon -->
 
-  <title>iOS Safari Canvas 大图片高度坍塌 bug</title>
+  <title>JPEG 图片 Exif 信息提取</title>
 
   <!--<link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>-->
   <link rel="stylesheet" type="text/css" href="/stylesheets/stylesheet.css" media="screen"/>
@@ -85,7 +85,7 @@
   <div class="inner">
 
     <header>
-      <h1>iOS Safari Canvas 大图片高度坍塌 bug</h1>
+      <h1>JPEG 图片 Exif 信息提取</h1>
 
       <h2>HJin.me Code Partials</h2>
     </header>
@@ -99,62 +99,28 @@
 
     <section id="main_content">
 
-      <p>测试 iOS Safari Canvas 加载过大 JPEG 格式图片的高度坍塌问题</p>
+      <p>使用 JavaScript 提取 JPEG 格式图片的 EXIF 信息</p>
 
       <h3>
         <a name="test_case" class="anchor" href="#test_case"><span class="octicon octicon-link"></span></a>
         测试用例</h3>
       <p><input type="file" id="take_pic" accept="image/*"></p>
 
-      <h3>加载全部图片</h3>
-      <p><canvas id="canvas_full" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (300 * 300)</h3>
-      <p><canvas id="canvas_partial_300" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (600 * 600)</h3>
-      <p><canvas id="canvas_partial_600" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (1024 * 1024)</h3>
-      <p><canvas id="canvas_partial_1024" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (1200 * 1200)</h3>
-      <p><canvas id="canvas_partial_1200" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (1500 * 1500)</h3>
-      <p><canvas id="canvas_partial_1500" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (1800 * 1800)</h3>
-      <p><canvas id="canvas_partial_1800" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (2000 * 2000)</h3>
-      <p><canvas id="canvas_partial_2000" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (2200 * 2200)</h3>
-      <p><canvas id="canvas_partial_2200" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (2400 * 2400)</h3>
-      <p><canvas id="canvas_partial_2400" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (3000 * 3000)</h3>
-      <p><canvas id="canvas_partial_3000" width="300" height="300"></canvas></p>
-
-      <h3>加载部分图片 (3263 * 3263) // 3264 - 1</h3>
-      <p><canvas id="canvas_partial_3263" width="300" height="300"></canvas></p>
-
       <h3>原始图片</h3>
       <p><img src="" id="raw_image" style="width: 300px"></p>
 
+      <h3>图片信息</h3>
+
+<pre><code id="exif"></code></pre>
+
       <h3>
-        <a name="solution" class="anchor" href="#solution"><span class="octicon octicon-link"></span></a>
-        解决方案</h3>
+        <a name="link" class="anchor" href="#link"><span class="octicon octicon-link"></span></a>
+        相关资料</h3>
       <dl>
-        <dt><a href="https://github.com/stomita/ios-imagefile-megapixel">Mega pixel image rendering library for iOS6 Safari</a></dt>
-        <dd>通过检测像素的 alpha 值判断图片被压扁的比例，再经过像素操作将图片还原至原有比例。图像质量损失严重。</dd>
-        <dt><a href="https://github.com/blueimp/JavaScript-Load-Image/issues/13">JavaScript-Load-Image</a></dt>
-        <dd>一些引用资料</dd>
-        <dt><a href="#">这是我想到的</a> // TODO</dt>
-        <dd>将图片渲染成若干组未被压扁的小图片，在拼接起来。</dd>
+        <dt><a href="https://github.com/ajalabox/exifjs">ajalabox / exifjs</a></dt>
+        <dd>支持使用 ArrayBuffer 读取 exif 信息的库 (html5 only)</dd>
+        <dt><a href="https://github.com/jseidelin/exif-js">jseidelin / exif-js</a></dt>
+        <dd>兼容性更好的读取 exif 信息的库，支持 IE</dd>
       </dl>
     </section>
 
@@ -165,6 +131,7 @@
 
   </div>
 </div>
+<script src="./exifjs-master/exif.js"></script>
 <script src="./script.js"></script>
 </body>
 </html>

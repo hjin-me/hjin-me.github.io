@@ -23,7 +23,7 @@
       var img = new Image();
       img.onload = function() {
         renderAllImage(img);
-        [300, 600, 1200, 1800, 2000, 2200, 2400, 3000, 3263].forEach(function(size) {
+        [300, 600, 1024, 1200, 1500, 1800, 2000, 2200, 2400, 3000, 3263].forEach(function(size) {
           console.log('prepare render size (' + size + ')');
           renderPartialImage(img, size);
         });
