@@ -17,22 +17,10 @@
       alert('请选择 jpeg 格式图片');
     }
 
-    var fr = new FileReader();
+    EXIF.getData(e.target.files[0], function() {
+      print(this);
+    });
 
-    fr.onload = function() {
-      var data;
-      try {
-        data = Exif.loadFromArrayBuffer(this.result);
-      } catch(e) {
-        print(e._stack);
-        return ;
-      }
-
-      print(data);
-
-    };
-
-    fr.readAsArrayBuffer(this.files[0]);
 
     var fr2 = new FileReader();
 
