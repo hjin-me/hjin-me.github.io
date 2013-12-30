@@ -97,21 +97,16 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
 
     imgSharp._draw();
 
-    setTimeout(function () {
-//      imgSharp.scale(0.5);
-    }, 2000);
-
-
     touch.on('#ps-lite-gesture', 'touchstart', function (ev) {
       console.log('touchstart prevent');
       ev.originEvent.touches = ev.originEvent.touches || [];
-      if (ev.originEvent.touches.length > 1) {
+      // if (ev.originEvent.touches.length > 1) {
         ev.originEvent.preventDefault();
-      }
+      // }
       console.log('fingers', ev.originEvent.touches.length);
     });
 
-    imgSharp.lockScaleRatio();
+    imgSharp.lock();
     touch.on('#ps-lite-gesture', 'pinch', {interval: 32}, function (ev) {
 
       console.dir(ev.scale);
@@ -119,13 +114,20 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
         imgSharp.scale(ev.scale);
 
         if(ev.fingerStatus === 'end'){
-          imgSharp.lockScaleRatio();
+          imgSharp.lock();
         }
       });
-
-
     });
 
+    touch.on('#ps-lite-gesture', 'drag', function(ev){
+      utils.requestAnimationFrame(function () {
+
+        imgSharp.translate(ev.distanceX, ev.distanceY);
+        if(ev.fingerStatus === 'end'){
+          imgSharp.lock();
+        }
+      });
+    })
   }
 
   var ImageSharp = function (img, ctx) {
@@ -184,25 +186,27 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
     };
 
     self.capture = {};
-    self.lockRatio = {};
+    self._lock = {};
   };
 
-  ImageSharp.prototype.lockScaleRatio = function() {
-    this.lockRatio.width = this.style.width;
-    this.lockRatio.height = this.style.height;
+  ImageSharp.prototype.lock = function() {
+    this._lock.width = this.style.width;
+    this._lock.height = this.style.height;
+    this._lock.left = this.style.left;
+    this._lock.top = this.style.top;
   };
 
-  ImageSharp.prototype.unlockScaleRatio = function() {
-    this.lockRatio = null;
+  ImageSharp.prototype.unlock = function() {
+    this._lock = null;
   };
 
   ImageSharp.prototype.scale = function (ratio) {
     // TODO 暂时只支持中心缩放
-    var self = this, lock = self.lockRatio;
+    var self = this, lock = self._lock;
     self._capture();
 
     if(!lock) {
-      self.lockScaleRatio();
+      self.lock();
     }
 
 
@@ -211,16 +215,61 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
       y: self.style.top + self.style.height / 2
     };
 
-    self.style.width = self.lockRatio.width * ratio;
-    self.style.height = self.lockRatio.height * ratio;
+    self.style.width = lock.width * ratio;
+    self.style.height = lock.height * ratio;
 
     self.style.left = center.x - self.style.width / 2;
     self.style.top = center.y - self.style.height / 2;
 
-    /*console.log('x', center.x, 'y', center.y
-      , 'left', self.style.left, 'top', self.style.top
-      , 'width', self.style.width, 'height', self.style.height
-    );*/
+    self._clear();
+    self._draw();
+
+    if(!lock) {
+      self.unlock();
+    }
+  };
+
+  /**
+   *
+   * @param x
+   * @param [y]
+   * @param [z]
+   */
+  ImageSharp.prototype.translate = function (x, y, z) {
+    var self = this, lock = self._lock;
+    self._capture();
+
+    if(!lock) {
+      self.lock();
+    }
+
+    self.style.left = lock.left + x;
+    self.style.top = lock.top + y;
+
+    self._clear();
+    self._draw();
+
+    if(!lock) {
+      self.unlock();
+    }
+  };
+
+  /**
+   *
+   * @param x
+   * @param [y]
+   * @param [z]
+   */
+  ImageSharp.prototype.translateTo = function (x, y, z) {
+    var self = this, lock = self._lock;
+    self._capture();
+
+    if(!lock) {
+      self.lock();
+    }
+
+    self.style.left = x;
+    self.style.top = y;
 
     self._clear();
     self._draw();
@@ -228,18 +277,6 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
     if(!lock) {
       self.unlockScaleRatio();
     }
-    // self.ctx.drawImage(self.data.raw, sx, sy, sw, sh, dx, dy, dw, dh);
-  };
-
-  ImageSharp.prototype.translate = function (x, y, z) {
-    var self = this;
-    self._capture();
-
-    self.style.left = x;
-    self.style.top = y;
-
-    self._clear();
-    self._draw();
   };
 
   ImageSharp.prototype._capture = function () {
