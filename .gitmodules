@@ -1,0 +1,3 @@
+[submodule "dependencies/zrender"]
+	path = dependencies/zrender
+	url = https://github.com/ecomfe/zrender.git
