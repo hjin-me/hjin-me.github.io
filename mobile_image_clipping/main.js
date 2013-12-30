@@ -79,7 +79,7 @@ require(['timer', 'exif', 'touch', 'utils', '/mobile_image_clipping/ImageSharp.j
     var bg = document.querySelector("#ps-lite-clipping .bg");
     var fg = document.querySelector("#ps-lite-clipping .fg");
 
-    var imgSharp = new ImageSharp(img, bg.getContext('2d'));
+    var imgSharp = new ImageSharp(bg.getContext('2d'), img);
 
     var dw = bg.width, dh = bg.height;
 
@@ -130,7 +130,7 @@ require(['timer', 'exif', 'touch', 'utils', '/mobile_image_clipping/ImageSharp.j
     var gestureCanvas = document.querySelector('#ps-lite-gesture canvas');
     var ctx = gestureCanvas.getContext('2d');
 
-    var imgSharp = new ImageSharp(img, ctx);
+    var imgSharp = new ImageSharp(ctx, img);
 
     var dx = 0, dy = 0, dw = gestureCanvas.width, dh = gestureCanvas.height;
 
