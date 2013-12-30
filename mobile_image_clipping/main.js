@@ -1,7 +1,7 @@
 requirejs.config({
   baseUrl: '/',
   paths: {
-
+    'mmclass': '/dependencies/mmclass/dist/class'
   },
   packages: [
     {
@@ -50,11 +50,11 @@ requirejs.config({
   urlArgs: "__ts={{DATE}}"
 });
 
-require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils) {
+require(['timer', 'exif', 'touch', 'utils', '/mobile_image_clipping/ImageSharp.js', '/mobile_image_clipping/BorderSharp.js'], function (timer, EXIF, touch, utils, ImageSharp, BorderSharp) {
 
   var targetImg = new Image();
   targetImg.onload = function () {
-    touchInterface(targetImg);
+    clippingInterface(targetImg);
     gestureInterface(targetImg);
   };
   targetImg.src = '/images/beauty.jpg';
@@ -73,8 +73,58 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
 
     ctx.drawImage(targetImg, dx, dy, dw, dh);
 
+  }
+
+  function clippingInterface(img) {
+    var bg = document.querySelector("#ps-lite-clipping .bg");
+    var fg = document.querySelector("#ps-lite-clipping .fg");
+
+    var imgSharp = new ImageSharp(img, bg.getContext('2d'));
+
+    var dw = bg.width, dh = bg.height;
+
+    if (img.width > img.height) {
+      dh = img.height / img.width * dw;
+    } else {
+      dw = img.width / img.height * dh;
+    }
+
+    imgSharp.style.left = 10;
+    imgSharp.style.top = 20;
+    imgSharp.style.width = dw;
+    imgSharp.style.height = dh;
+
+    imgSharp.draw();
+
+    var boxSharp = new BorderSharp(fg.getContext('2d'));
+
+    boxSharp.style.border.width = 1;
+    boxSharp.style.border.color = "#0000FF";
+
+
+    touch.on('#ps-lite-clipping', 'touchstart', function (ev) {
+      console.log('touchstart prevent');
+      ev.originEvent.touches = ev.originEvent.touches || [];
+      ev.originEvent.preventDefault();
+      console.log('fingers', ev.originEvent.touches.length);
+    });
+
+    touch.on('#ps-lite-clipping', 'drag', {interval: 16}, function(ev){
+      console.log(ev.position, ev.distanceX, ev.distanceY);
+      // ev.position.x // Pointer 坐标
+      // ev.position.y // Pointer 坐标
+      utils.requestAnimationFrame(function () {
+        boxSharp._capture();
+        boxSharp.style.left = ev.position.x - ev.distanceX;
+        boxSharp.style.top = ev.position.y - ev.distanceY;
+        boxSharp.style.width = ev.distanceX;
+        boxSharp.style.height = ev.distanceY;
+        boxSharp.refresh();
+      });
+    })
 
   }
+
 
   function gestureInterface(img) {
     var gestureCanvas = document.querySelector('#ps-lite-gesture canvas');
@@ -95,7 +145,7 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
     imgSharp.style.width = dw;
     imgSharp.style.height = dh;
 
-    imgSharp._draw();
+    imgSharp.draw();
 
     touch.on('#ps-lite-gesture', 'touchstart', function (ev) {
       console.log('touchstart prevent');
@@ -107,7 +157,7 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
     });
 
     imgSharp.lock();
-    touch.on('#ps-lite-gesture', 'pinch', {interval: 32}, function (ev) {
+    touch.on('#ps-lite-gesture', 'pinch', {interval: 16}, function (ev) {
 
       console.dir(ev.scale);
       utils.requestAnimationFrame(function() {
@@ -130,178 +180,4 @@ require(['timer', 'exif', 'touch', 'utils'], function (timer, EXIF, touch, utils
     })
   }
 
-  var ImageSharp = function (img, ctx) {
-    var self = this;
-
-    self.ctx = ctx;
-
-    self.data = {
-      orgin: {
-        x: '50%',
-        y: '50%'
-      },
-      rect: {
-        left: 0,
-        top: 0,
-        bottom: 0,
-        right: 0,
-        width: img.width,
-        height: img.height
-      },
-      raw: img
-    };
-
-    self.style = {
-      get left() {
-        return self.data.rect.left;
-      },
-      set left(val) {
-        self.data.rect.left = parseFloat(val);
-        return self;
-      },
-      get top() {
-        return self.data.rect.top;
-      },
-      set top(val) {
-        self.data.rect.top = parseFloat(val);
-        return self;
-      },
-
-      get width () {
-        return self.data.rect.width;
-      },
-      set width (val) {
-        self.data.rect.width = parseFloat(val);
-        self.data.orgin.x = self.data.rect.width / 2;
-        return self;
-      },
-      get height () {
-        return self.data.rect.height;
-      },
-      set height (val) {
-        self.data.rect.height = parseFloat(val);
-        self.data.orgin.x = self.data.rect.height / 2;
-        return self;
-      }
-    };
-
-    self.capture = {};
-    self._lock = {};
-  };
-
-  ImageSharp.prototype.lock = function() {
-    this._lock.width = this.style.width;
-    this._lock.height = this.style.height;
-    this._lock.left = this.style.left;
-    this._lock.top = this.style.top;
-  };
-
-  ImageSharp.prototype.unlock = function() {
-    this._lock = null;
-  };
-
-  ImageSharp.prototype.scale = function (ratio) {
-    // TODO 暂时只支持中心缩放
-    var self = this, lock = self._lock;
-    self._capture();
-
-    if(!lock) {
-      self.lock();
-    }
-
-
-    var center = {
-      x: self.style.left + self.style.width / 2,
-      y: self.style.top + self.style.height / 2
-    };
-
-    self.style.width = lock.width * ratio;
-    self.style.height = lock.height * ratio;
-
-    self.style.left = center.x - self.style.width / 2;
-    self.style.top = center.y - self.style.height / 2;
-
-    self._clear();
-    self._draw();
-
-    if(!lock) {
-      self.unlock();
-    }
-  };
-
-  /**
-   *
-   * @param x
-   * @param [y]
-   * @param [z]
-   */
-  ImageSharp.prototype.translate = function (x, y, z) {
-    var self = this, lock = self._lock;
-    self._capture();
-
-    if(!lock) {
-      self.lock();
-    }
-
-    self.style.left = lock.left + x;
-    self.style.top = lock.top + y;
-
-    self._clear();
-    self._draw();
-
-    if(!lock) {
-      self.unlock();
-    }
-  };
-
-  /**
-   *
-   * @param x
-   * @param [y]
-   * @param [z]
-   */
-  ImageSharp.prototype.translateTo = function (x, y, z) {
-    var self = this, lock = self._lock;
-    self._capture();
-
-    if(!lock) {
-      self.lock();
-    }
-
-    self.style.left = x;
-    self.style.top = y;
-
-    self._clear();
-    self._draw();
-
-    if(!lock) {
-      self.unlockScaleRatio();
-    }
-  };
-
-  ImageSharp.prototype._capture = function () {
-    for (var i in this.data.rect) {
-      if (this.data.rect.hasOwnProperty(i)) {
-        this.capture[i] = this.data.rect[i];
-      }
-    }
-    console.dir(this.data);
-    console.dir(this.capture);
-  };
-
-  ImageSharp.prototype._clear = function () {
-    // TODO 默认为透明
-    var self = this, ctx = self.ctx, rect = self.capture;
-    ctx.clearRect(rect.left - 0.5, rect.top - 0.5, rect.width + 1, rect.height + 1);
-    self.capture = {};
-  };
-
-  ImageSharp.prototype._draw = function () {
-    var self = this;
-
-    var sx = 0, sy = 0, sw = self.data.raw.width, sh = self.data.raw.height
-      , dx = self.style.left, dy = self.style.top, dw = self.style.width, dh = self.style.height;
-
-    self.ctx.drawImage(self.data.raw, sx, sy, sw, sh, dx, dy, dw, dh);
-  };
 });

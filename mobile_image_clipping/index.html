@@ -101,10 +101,11 @@
 
       <p>做一个移动端简单的图像缩放剪裁工具</p>
 
-      <h3>按选剪裁</h3>
+      <h3>单指框选剪裁</h3>
 
-      <div id="ps-lite-touch">
-        <canvas style="border: 1px solid #808080" width="300" height="300"></canvas>
+      <div id="ps-lite-clipping" style="position: relative; width: 300px; height: 300px;">
+        <canvas class="bg" style="border: 1px solid #808080; position: absolute; top: 0; left: 0;" width="300" height="300"></canvas>
+        <canvas class="fg" style="border: 1px solid #818181; position: absolute; top: 0; left: 0" width="300" height="300"></canvas>
       </div>
 
 
