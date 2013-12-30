@@ -1,7 +1,7 @@
 /**
  * Created by huangjin02 on 13-12-30.
  */
-define(['./Sharp.js', 'mmclass'], function (Sharp, mmClass) {
+define(['./Sharp', 'mmclass'], function (Sharp, mmClass) {
 
   var Class = mmClass.Class;
 

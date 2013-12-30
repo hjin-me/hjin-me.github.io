@@ -103,24 +103,38 @@
 
       <h3>单指框选剪裁</h3>
 
-      <div id="ps-lite-clipping" style="position: relative; width: 300px; height: 300px;">
-        <canvas class="bg" style="border: 1px solid #808080; position: absolute; top: 0; left: 0;" width="300" height="300"></canvas>
-        <canvas class="fg" style="border: 1px solid #818181; position: absolute; top: 0; left: 0" width="300" height="300"></canvas>
+      <p>使用一个指头画框进行剪裁</p>
+
+      <div id="ps-lite-clipping" style="position: relative; width: 300px; height: 250px; margin-bottom: 1em;">
+        <canvas class="bg" style="border: 1px solid #808080; position: absolute; top: 0; left: 0;" width="300" height="250"></canvas>
+        <canvas class="fg" style="border: 1px solid #818181; position: absolute; top: 0; left: 0" width="300" height="250"></canvas>
       </div>
 
+      <h4>楼上的预览</h4>
+      <p><img src="about:blank" id="clipping-output"></p>
+
+      <h3>单指按选剪裁</h3>
+
+      <p>单指长按一个区域，进行剪裁</p>
+      <div id="ps-lite-touch" style="position: relative; width: 300px; height: 250px; margin-bottom: 1em;">
+        <canvas class="bg" style="border: 1px solid #808080; position: absolute; top: 0; left: 0;" width="300" height="250"></canvas>
+        <canvas class="fg" style="border: 1px solid #818181; position: absolute; top: 0; left: 0;" width="300" height="250"></canvas>
+      </div>
+
+      <h4>楼上的预览</h4>
+      <p><img src="about:blank" id="touch-output"></p>
 
       <h3>双指缩放剪裁</h3>
 
-      <div id="ps-lite-gesture">
-        <canvas style="border: 1px solid #808080" width="300" height="300"></canvas>
+      <p>双指缩放来仅显示需要保留的区域</p>
+      <div id="ps-lite-gesture" style="position: relative; width: 300px; height: 250px; margin-bottom: 1em;">
+        <canvas class="bg" style="border: 1px solid #808080; position: absolute; top: 0; left: 0;" width="300" height="250"></canvas>
+        <canvas class="fg" style="border: 1px solid #818181; position: absolute; top: 0; left: 0;" width="300" height="250"></canvas>
       </div>
 
-      <p id="message"></p>
+      <h4>楼上的预览</h4>
+      <p><img src="about:blank" id="gesture-output"></p>
 
-
-      <h3>剪裁后的结果</h3>
-
-      <p><img src="about:blank" id="output"></p>
 
       <h3>
         <a name="solution" class="anchor" href="#solution"><span class="octicon octicon-link"></span></a>
