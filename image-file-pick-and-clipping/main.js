@@ -126,13 +126,16 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
       var cutZone = {
         left: Math.max(0, clrSharp.style.left - imgSharp.style.left) * ratio,
         top: Math.max(0, clrSharp.style.top - imgSharp.style.top) * ratio,
-        bottom: Math.max(0, Math.min(imgSharp.style.bottom, clrSharp.style.bottom) - imgSharp.style.top) * ratio,
-        right: Math.max(0, Math.min(imgSharp.style.right, clrSharp.style.right) - imgSharp.style.left) * ratio
+        bottom: Math.max(0, clrSharp.style.bottom - imgSharp.style.bottom) * ratio,
+        right: Math.max(0, clrSharp.style.right - imgSharp.style.right) * ratio
       };
+
+      console.log('cut', cutZone);
 
 
       outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
-        , cutZone.right - cutZone.left, cutZone.bottom - cutZone.top
+        , imgSharp.data.raw.width - cutZone.left - cutZone.right
+        , imgSharp.data.raw.height - cutZone.bottom - cutZone.top
         , 200
         , document.getElementById('touch-output'));
     });
@@ -187,42 +190,43 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
       console.log('drag', ev.position, ev.distanceX, ev.distanceY);
       // ev.position.x // Pointer 坐标
       // ev.position.y // Pointer 坐标
-      utils.requestAnimationFrame(function () {
-        boxSharp._capture();
-        if(ev.distanceX > 0) {
-          boxSharp.style.left = ev.position.x - ev.distanceX;
-        } else {
-          boxSharp.style.left = ev.position.x;
-        }
-        if(ev.distanceY > 0) {
-          boxSharp.style.top = ev.position.y - ev.distanceY;
-        } else {
-          boxSharp.style.top = ev.position.y;
-        }
+
+      if(ev.distanceX > 0) {
+        boxSharp.style.left = ev.position.x - ev.distanceX;
+      } else {
+        boxSharp.style.left = ev.position.x;
+      }
+      if(ev.distanceY > 0) {
+        boxSharp.style.top = ev.position.y - ev.distanceY;
+      } else {
+        boxSharp.style.top = ev.position.y;
+      }
+
+      boxSharp.style.width = Math.abs(ev.distanceX);
+      boxSharp.style.height = Math.abs(ev.distanceY);
+      boxSharp.refresh();
+
+      if (ev.fingerStatus === 'end') {
+        // 输出到输出区
+        var ratio = imgSharp.data.raw.width / imgSharp.style.width;
+
+        var cutZone = {
+          left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
+          top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
+          bottom: Math.max(0, boxSharp.style.bottom - imgSharp.style.bottom) * ratio,
+          right: Math.max(0, boxSharp.style.right - imgSharp.style.right) * ratio
+        };
+
+        console.log('cut', cutZone);
 
 
-        boxSharp.style.width = Math.abs(ev.distanceX);
-        boxSharp.style.height = Math.abs(ev.distanceY);
-        boxSharp.refresh();
+        outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
+          , imgSharp.data.raw.width - cutZone.left - cutZone.right
+          , imgSharp.data.raw.height - cutZone.bottom - cutZone.top
+          , 200
+          , document.getElementById('clipping-output'));
 
-        if (ev.fingerStatus === 'end') {
-          // 输出到输出区
-          var ratio = imgSharp.data.raw.width / imgSharp.style.width;
-
-          var cutZone = {
-            left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
-            top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
-            bottom: Math.max(0, Math.min(imgSharp.style.bottom, boxSharp.style.bottom) - imgSharp.style.top) * ratio,
-            right: Math.max(0, Math.min(imgSharp.style.right, boxSharp.style.right) - imgSharp.style.left) * ratio
-          };
-
-          outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
-            , cutZone.right - cutZone.left, cutZone.bottom - cutZone.top
-            , 200
-            , document.getElementById('clipping-output'));
-        }
-
-      });
+      }
     })
 
   }
@@ -273,56 +277,60 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
     touch.on('#ps-lite-gesture', 'pinch', {interval: 16}, function (ev) {
 
       console.dir(ev.scale);
-      utils.requestAnimationFrame(function () {
-        imgSharp.scale(ev.scale);
+      imgSharp.scale(ev.scale);
 
-        if (ev.fingerStatus === 'end') {
-          imgSharp.lock();
+      if (ev.fingerStatus === 'end') {
+        imgSharp.lock();
 
-          // 输出到输出区
-          var ratio = imgSharp.data.raw.width / imgSharp.style.width;
+        // 输出到输出区
+        var ratio = imgSharp.data.raw.width / imgSharp.style.width;
 
-          var cutZone = {
-            left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
-            top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
-            bottom: Math.max(0, Math.min(imgSharp.style.bottom, boxSharp.style.bottom) - imgSharp.style.top) * ratio,
-            right: Math.max(0, Math.min(imgSharp.style.right, boxSharp.style.right) - imgSharp.style.left) * ratio
-          };
+        var cutZone = {
+          left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
+          top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
+          bottom: Math.max(0, boxSharp.style.bottom - imgSharp.style.bottom) * ratio,
+          right: Math.max(0, boxSharp.style.right - imgSharp.style.right) * ratio
+        };
 
-          outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
-            , cutZone.right - cutZone.left, cutZone.bottom - cutZone.top
-            , 200
-            , document.getElementById('gesture-output'));
+        console.log('cut', cutZone);
 
-        }
-      });
+
+        outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
+          , imgSharp.data.raw.width - cutZone.left - cutZone.right
+          , imgSharp.data.raw.height - cutZone.bottom - cutZone.top
+          , 200
+          , document.getElementById('gesture-output'));
+
+      }
     });
 
     touch.on('#ps-lite-gesture', 'drag', function (ev) {
-      utils.requestAnimationFrame(function () {
+      imgSharp.translate(ev.distanceX, ev.distanceY);
 
-        imgSharp.translate(ev.distanceX, ev.distanceY);
-        if (ev.fingerStatus === 'end') {
-          imgSharp.lock();
+      if (ev.fingerStatus === 'end') {
 
-          // 输出到输出区
-          var ratio = imgSharp.data.raw.width / imgSharp.style.width;
+        imgSharp.lock();
 
-          var cutZone = {
-            left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
-            top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
-            bottom: Math.max(0, Math.min(imgSharp.style.bottom, boxSharp.style.bottom) - imgSharp.style.top) * ratio,
-            right: Math.max(0, Math.min(imgSharp.style.right, boxSharp.style.right) - imgSharp.style.left) * ratio
-          };
+        // 输出到输出区
+        var ratio = imgSharp.data.raw.width / imgSharp.style.width;
+
+        var cutZone = {
+          left: Math.max(0, boxSharp.style.left - imgSharp.style.left) * ratio,
+          top: Math.max(0, boxSharp.style.top - imgSharp.style.top) * ratio,
+          bottom: Math.max(0, boxSharp.style.bottom - imgSharp.style.bottom) * ratio,
+          right: Math.max(0, boxSharp.style.right - imgSharp.style.right) * ratio
+        };
+
+        console.log('cut', cutZone);
 
 
-          outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
-            , cutZone.right - cutZone.left, cutZone.bottom - cutZone.top
-            , 200
-            , document.getElementById('gesture-output'));
+        outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
+          , imgSharp.data.raw.width - cutZone.left - cutZone.right
+          , imgSharp.data.raw.height - cutZone.bottom - cutZone.top
+          , 200
+          , document.getElementById('gesture-output'));
 
-        }
-      });
+      }
     })
   }
 

@@ -21,7 +21,10 @@ define(['./SharpBase'], function (SharpBase) {
     SharpBase.call(this, canvas, options);
 
     var self = this;
-    self.data.border = {};
+    self.data.border = {
+      width: 1,
+      color: '#ffffff'
+    };
     self.style.border = {
       get color() {
         return self.data.border.color;

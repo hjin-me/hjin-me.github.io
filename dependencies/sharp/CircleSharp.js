@@ -19,7 +19,10 @@ define(['./SharpBase'], function (SharpBase) {
     SharpBase.call(this, canvas, options);
 
     var self = this;
-    self.data.border = {};
+    self.data.border = {
+      width: 1,
+      color: '#ffffff'
+    };
 
     self.style.border = {
       get color() {
@@ -39,7 +42,11 @@ define(['./SharpBase'], function (SharpBase) {
 
     };
 
-    self.data.circle = {};
+    self.data.circle = {
+      x: 0,
+      y: 0,
+      r: 0
+    };
     self.style.circle = {
       get x() {
         return self.data.circle.x || 0;
@@ -48,7 +55,7 @@ define(['./SharpBase'], function (SharpBase) {
         self.data.circle.x = val;
 
         self.data.rect.left = self.data.circle.x - self.data.circle.r;
-        self.data.rect.right = self.ctx.width - self.data.circle.x - self.data.circle.r;
+        self.data.rect.right = self.canvas.width - self.data.circle.x - self.data.circle.r;
 
         return self;
       },
@@ -60,7 +67,7 @@ define(['./SharpBase'], function (SharpBase) {
         self.data.circle.y = val;
 
         self.data.rect.top = self.data.circle.y - self.data.circle.r;
-        self.data.rect.bottom = self.ctx.height - self.data.circle.y - self.data.circle.r;
+        self.data.rect.bottom = self.canvas.height - self.data.circle.y - self.data.circle.r;
         return self;
       },
 
@@ -71,9 +78,9 @@ define(['./SharpBase'], function (SharpBase) {
         self.data.circle.r = val;
 
         self.data.rect.left = self.data.circle.x - self.data.circle.r;
-        self.data.rect.right = self.ctx.width - self.data.circle.x - self.data.circle.r;
+        self.data.rect.right = self.canvas.width - self.data.circle.x - self.data.circle.r;
         self.data.rect.top = self.data.circle.y - self.data.circle.r;
-        self.data.rect.bottom = self.ctx.height - self.data.circle.y - self.data.circle.r;
+        self.data.rect.bottom = self.canvas.height - self.data.circle.y - self.data.circle.r;
 
         self.data.rect.width = 2 * self.data.circle.r;
         self.data.rect.height = 2 * self.data.circle.r;

@@ -2,11 +2,21 @@
  * Created by huangjin02 on 13-12-30.
  */
 define(['utils'], function (utils) {
+
+  function isEmpty(obj) {
+    for(var i in obj) {
+      if(obj.hasOwnProperty(i)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   function SharpBase(canvas, options) {
     options = options || {};
     var self = this;
-    if(!canvas) {
-      canvas = document.createElement('canvas');
+    if(canvas) {
       self.canvas = canvas;
       self.ctx = canvas.getContext('2d');
     }
@@ -17,12 +27,12 @@ define(['utils'], function (utils) {
         y: '50%'
       },
       rect: {
-        left: options.left,
-        top: options.top,
+        left: 0,
+        top: 0,
         bottom: 0,
         right: 0,
-        width: options.width,
-        height: options.height
+        width: options.width || 0,
+        height: options.height || 0
       },
       raw: options
     };
@@ -102,7 +112,7 @@ define(['utils'], function (utils) {
           self.capture.bottom = self.data.rect.bottom
         }
         self.data.rect.bottom = parseFloat(val);
-        self.data.rect.height = self.data.rect.bottom - self.data.rect.top;
+        self.data.rect.height = self.canvas.height - self.data.rect.bottom - self.data.rect.top;
 
         return self;
       }
@@ -203,8 +213,9 @@ define(['utils'], function (utils) {
   SharpBase.prototype.draw = function () {
     var self = this;
     utils.requestAnimationFrame(function(ts) {
+      console.log('rect', self.data.rect);
       self._draw();
-      self.capture = null;
+      self.capture = {};
     });
   };
 
@@ -218,14 +229,16 @@ define(['utils'], function (utils) {
         console.log('renderFrame', self._renderFrame);
         self._clear();
         self._draw();
-        self.capture = null;
+        self.capture = {};
         self._renderFrame = 0;
+      } else {
+        console.log('render 0 ')
       }
     });
   };
 
   SharpBase.prototype._capture = function () {
-    if(this.capture) {
+    if(!isEmpty(this.capture)) {
       return ;
     }
     this.capture = {};
