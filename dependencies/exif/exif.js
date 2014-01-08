@@ -370,8 +370,14 @@ define(['./BinaryFile'], function (BinaryFile) {
       for (i = 0; i < entries; i++) {
         entryOffset = dirStart + i * 12 + 2;
         tag = strings[file.getShortAt(entryOffset, bigEnd)];
-        if (!tag && debug) console.log("Unknown tag: " + file.getShortAt(entryOffset, bigEnd));
-        tags[tag] = readTagValue(file, entryOffset, tiffStart, dirStart, bigEnd);
+        if(tag) {
+          tags[tag] = readTagValue(file, entryOffset, tiffStart, dirStart, bigEnd);
+        } else {
+          if ( debug) {
+            console.log("Unknown tag: " + file.getShortAt(entryOffset, bigEnd));
+          }
+        }
+
       }
       return tags;
     }
@@ -643,7 +649,9 @@ define(['./BinaryFile'], function (BinaryFile) {
       GPSTags: GPSTags,
       StringValues: StringValues
     };
-  });
+  }());
+
+  console.log(EXIF);
 
   return EXIF;
 });

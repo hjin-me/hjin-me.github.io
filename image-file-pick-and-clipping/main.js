@@ -64,7 +64,9 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
   var ImageSharp = sharp.ImageSharp, BorderSharp = sharp.BorderSharp, CircleSharp = sharp.CircleSharp;
 
   var filePicker = new utils.file2image('#file-picker');
-  filePicker.onChange(function (img) {
+  filePicker.onChange(function (img, exif) {
+
+    console.dir(exif);
 
     clippingInterface(img);
     touchInterface(img);

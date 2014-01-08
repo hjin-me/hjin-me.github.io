@@ -250,7 +250,6 @@ define(['utils'], function (utils) {
   };
 
   SharpBase.prototype._clear = function () {
-    // TODO 默认为透明
     var self = this, ctx = self.ctx, rect = self.capture;
     if(!rect) {
       return ;

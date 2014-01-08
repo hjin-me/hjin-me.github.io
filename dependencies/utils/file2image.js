@@ -1,7 +1,7 @@
 /**
  * Created by huangjin02 on 14-1-3.
  */
-define([], function() {
+define(['exif', './squash'], function(EXIF, squash) {
 
   var file2image = function(selector) {
     var self = this;
@@ -14,11 +14,12 @@ define([], function() {
     }
 
     self.el.addEventListener('change', function() {
-      if(!this.files[0]) {
+      var el = this;
+      if(!el.files[0]) {
         alert('未选择文件')
       }
 
-      if(this.files[0].type.indexOf('image/jp') === -1) {
+      if(el.files[0].type.indexOf('image/jp') === -1) {
         alert('请选择 jpeg 格式图片');
       }
 
@@ -29,7 +30,18 @@ define([], function() {
         var img = new Image();
         img.onload = function() {
 
-          self.trigger(img);
+          console.log('raw image ', img.width, img.height);
+
+          EXIF.getData(el.files[0], function(){
+            // img.exifdata = this.exifdata;
+            console.log('exif', this.exifdata);
+
+            squash.fix(img, this.exifdata, function(fixedImg, exif) {
+              self.trigger(fixedImg, exif);
+            });
+            //console.log(img);
+          });
+
         };
 
         img.src = this.result;
@@ -46,9 +58,10 @@ define([], function() {
     }
   };
 
-  file2image.prototype.trigger = function(img) {
+  file2image.prototype.trigger = function(img, exif) {
+    console.log(exif);
     for(var i = 0, n = this.events.length; i < n; i++) {
-      this.events[i].call(this.el, img);
+      this.events[i].call(this.el, img, exif);
     }
   };
 
