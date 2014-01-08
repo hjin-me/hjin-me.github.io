@@ -5,19 +5,24 @@ define([], function() {
 
   var squash = {};
   squash.fix = function(img, exif, callback) {
+    console.log('natural', img.naturalWidth, img.naturalHeight);
+    console.log('normal', img.width, img.height);
+
     exif = exif || {};
 
     var size = 1024;
-    var canvas = document.createElement('canvas');
+    var canvas = document.getElementById('test');
     var ctx = canvas.getContext('2d');
     canvas.width = canvas.height = size;
 
     var orientation = exif.Orientation = exif.Orientation || 1;
-    var width = exif.PixelXDimension = exif.PixelXDimension || img.width;
-    var height = exif.PixelYDimension = exif.PixelYDimension || img.height;
+    var width = img.naturalWidth;
+    var height = img.naturalHeight;
 
-    width /= 2;
-    height /= 2;
+    if(squash.detectSubsampling(img)) {
+      width /= 2;
+      height /= 2;
+    }
 
     if(width > height) {
       canvas.height = Math.ceil(height / width * size);
@@ -27,10 +32,10 @@ define([], function() {
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    var d = 256;
-    var tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = canvas.width;
-    tmpCanvas.height = canvas.height;
+    var d = size / 2;
+    var tmpCanvas = document.getElementById('test-tmp');
+    tmpCanvas.width = d;
+    tmpCanvas.height = d;
     var tmpCtx = tmpCanvas.getContext('2d');
 
     var verticalSquashRatio = squash.detect(ctx, canvas.height) || 1;
@@ -44,35 +49,49 @@ define([], function() {
       return ;
     }
 
-    var dw = canvas.width;
-    var dh = canvas.height * verticalSquashRatio;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    //squash.transformCoordinate(canvas, width, height, orientation);
+
+    var dw = d * canvas.width / width;
+    var dh = d * canvas.height / height;
     var sy = 0;
     var dy = 0;
-    while (sy < canvas.height) {
+    // var p = 0, k = 0;
+    //while (p < 1) {
+    while (sy < img.height) {
+
       var sx = 0;
       var dx = 0;
-      while (sx < canvas.width) {
-        console.log(d, dx, dy, dw, dh);
+      //while(k < 2) {
+      while (sx < img.width) {
+        console.log( dx, dy, dw, dh);
         tmpCtx.clearRect(0, 0, d, d);
         tmpCtx.drawImage(img, -sx, -sy);
-        ctx.drawImage(tmpCanvas, 0, 0, d, d, dx, dy, dw, dh);
+        ctx.drawImage(tmpCanvas, 0, 0, d, d, dx, dy, dw, dw);
         sx += d;
         dx += dw;
+        // k ++;
       }
+
       sy += d;
-      dy += dh;
+      dy += dw;
+      // p ++
+
     }
-    ctx.restore();
+    // ctx.restore();
 
     img = new Image();
     img.onload = function() {
 
-      console.log(img.width, img.height);
+      console.log('toDataURL', img.width, img.height);
+
       exif.PixelXDimension = img.width;
       exif.PixelYDimension = img.height;
+
       callback(img, exif);
     };
-    img.src = canvas.toDataURL('image/jpeg', 0.9);
+    img.src = canvas.toDataURL('image/jpeg', 1);
 
   };
 
@@ -97,6 +116,25 @@ define([], function() {
     }
     var ratio = (py / ih);
     return (ratio === 0) ? 1 : ratio;
+  };
+  /**
+   * Detect subsampling in loaded image.
+   * In iOS, larger images than 2M pixels may be subsampled in rendering.
+   */
+  squash.detectSubsampling = function(img) {
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    if (iw * ih > 1024 * 1024) { // subsampling may happen over megapixel image
+      var canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, -iw + 1, 0);
+      // subsampled image becomes half smaller in rendering size.
+      // check alpha channel value to confirm image is covering edge pixel or not.
+      // if alpha value is 0 image is not covering, hence subsampled.
+      return ctx.getImageData(0, 0, 1, 1).data[3] === 0;
+    } else {
+      return false;
+    }
   };
 
   return squash;
