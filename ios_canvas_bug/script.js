@@ -83,6 +83,9 @@
 
     console.log(sx, sy, sw, sh, dx, dy, dw, dh);
 
+    // canvasPartial.width = dw;
+    // canvasPartial.height = dh;
+    // ctx.drawImage(img, -dx, -dy);
     ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
 
     console.log('render size : ' + size + '; raw size is : ' + rawSize);

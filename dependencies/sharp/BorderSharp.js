@@ -75,7 +75,8 @@ define(['./SharpBase'], function (SharpBase) {
     ctx.lineTo(self.style.left, self.style.top + self.style.height);
     ctx.lineTo(self.style.left + self.style.width, self.style.top + self.style.height);
     ctx.lineTo(self.style.left + self.style.width, self.style.top);
-    ctx.lineTo(self.style.left, self.style.top);
+    // ctx.lineTo(self.style.left, self.style.top);
+    ctx.closePath();
 
     ctx.strokeStyle = self.style.border.color;
     ctx.lineWidth = self.style.border.width;

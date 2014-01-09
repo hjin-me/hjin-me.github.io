@@ -59,7 +59,7 @@ requirejs.config({
   urlArgs: "__ts={{DATE}}"
 });
 
-require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, touch, utils, sharp) {
+require(['timer', 'touch', 'utils', 'sharp'], function (timer, touch, utils, sharp) {
 
   var ImageSharp = sharp.ImageSharp, BorderSharp = sharp.BorderSharp, CircleSharp = sharp.CircleSharp;
 
@@ -188,7 +188,11 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
       console.log('fingers', ev.originEvent.touches.length);
     });
 
-    touch.on('#ps-lite-clipping', 'drag', {interval: 16}, function (ev) {
+    touch.on('#ps-lite-clipping', 'touchmove', function (ev) {
+      ev.originEvent.preventDefault();
+    });
+
+    touch.on('#ps-lite-clipping', 'drag', function (ev) {
       console.log('drag', ev.position, ev.distanceX, ev.distanceY);
       // ev.position.x // Pointer 坐标
       // ev.position.y // Pointer 坐标
@@ -233,7 +237,6 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
 
   }
 
-
   function gestureInterface(img) {
 
     var bg = document.querySelector("#ps-lite-gesture .bg");
@@ -255,6 +258,7 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
     imgSharp.style.height = dh;
 
     imgSharp.draw();
+    imgSharp.lock();
 
 
     var boxSharp = new BorderSharp(fg);
@@ -275,13 +279,18 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
       console.log('fingers', ev.originEvent.touches.length);
     });
 
-    imgSharp.lock();
-    touch.on('#ps-lite-gesture', 'pinch', {interval: 16}, function (ev) {
+    touch.on('#ps-lite-gesture', 'touchmove', function (ev) {
+      ev.originEvent.preventDefault();
+    });
+
+    touch.on('#ps-lite-gesture', 'pinch', function (ev) {
 
       console.dir(ev.scale);
       imgSharp.scale(ev.scale);
 
       if (ev.fingerStatus === 'end') {
+
+        // 锁定输出结果
         imgSharp.lock();
 
         // 输出到输出区
@@ -306,11 +315,15 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
       }
     });
 
+
     touch.on('#ps-lite-gesture', 'drag', function (ev) {
+
+      // 位移
       imgSharp.translate(ev.distanceX, ev.distanceY);
 
       if (ev.fingerStatus === 'end') {
 
+        // 锁定最后的位置
         imgSharp.lock();
 
         // 输出到输出区
@@ -324,7 +337,6 @@ require(['timer', 'exif', 'touch', 'utils', 'sharp'], function (timer, EXIF, tou
         };
 
         console.log('cut', cutZone);
-
 
         outputImg(imgSharp.data.raw, cutZone.left, cutZone.top
           , imgSharp.data.raw.width - cutZone.left - cutZone.right
