@@ -44,6 +44,11 @@
     }
 
     var img = document.createElement('img');
+
+    img.onerror = function () {
+      alert('图像内容不正确');
+    };
+
     var dataURI = document.createElement('pre');
 
     var fr = new FileReader();
