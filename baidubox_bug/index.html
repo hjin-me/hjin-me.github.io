@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title></title>
+  <!-- 为移动设备添加 viewport -->
+  <meta name ="viewport" content ="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no"> <!-- `width=device-width` 会导致 iPhone 5 添加到主屏后以 WebApp 全屏模式打开页面时出现黑边 http://bigc.at/ios-webapp-viewport-meta.orz -->
+  <script src="http://cq01-rdqa-dev047.cq01.baidu.com:8789/target/target-script-min.js#anonymous"></script>
+  <style>
+    body {
+      background-color: #F0FFF0;
+    }
+    .img {
+      width: 100px;
+      float: left;
+    }
+    img {
+      width: 100%;
+      height: auto;
+    }
+    pre {
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+<div id="raw" class="img">
+  <h3>选择图片，下面会显示出图片及图片base64后的内容</h3>
+</div>
+<input type="file" id="debug" accept="image/*">
+<script>
+  var ifile = document.getElementById('debug');
+  var raw = document.getElementById('raw');
+  ifile.addEventListener('change', function () {
+    var file = ifile.files[0];
+    if(!file) {
+      alert('has not pick a file');
+      return ;
+    }
+
+    if(!file.type) {
+      alert('file type is\'undefined\'');
+    }
+
+    var img = document.createElement('img');
+    var dataURI = document.createElement('pre');
+
+    var fr = new FileReader();
+    fr.onloadend = function () {
+      dataURI.innerHTML = fr.result;
+      img.src = fr.result;
+
+      raw.appendChild(img);
+      raw.appendChild(dataURI);
+    };
+    fr.readAsDataURL(file);
+  });
+</script>
+</body>
+</html>
