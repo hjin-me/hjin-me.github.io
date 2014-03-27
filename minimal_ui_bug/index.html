@@ -1,0 +1,84 @@
+<!DOCTYPE html> <!-- 使用 HTML5 doctype，不区分大小写 -->
+<html lang="zh-cmn-Hans"> <!-- 更加标准的 lang 属性写法 http://zhi.hu/XyIa -->
+<head>
+  <meta charset='utf-8'>
+  <!-- 声明文档使用的字符编码 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <!-- 优先使用 IE 最新版本和 Chrome -->
+  <meta name="description" content="iOS 7.1 Safari minimal-ui bug"/>
+  <!-- 页面描述 -->
+  <meta name="keywords" content="iOS, 7.1, Safari, minimal, ui, bug"/>
+  <!-- 页面关键词 -->
+  <meta name="author" content="HJin_me, hjin.me@gmail.com"/>
+  <!-- 网页作者 -->
+  <meta name="robots" content="index,follow"/>
+  <!-- 搜索引擎抓取 -->
+
+  <!-- 为移动设备添加 viewport -->
+  <meta name="viewport"
+        content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no, minimal-ui">
+  <title>iOS 7.1 Safari minimal-ui bug</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: dimgray;
+    }
+    #cssfullscreen {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      background-color: lightgray;
+      z-index: 1;
+    }
+    #cssfullscreen p {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    #jsfullscreen {
+
+      position: relative;
+      z-index: 2;
+
+      background-color: gainsboro;
+    }
+  </style>
+  <script>
+    var report = function() {
+      var css = document.getElementById('cssfullscreen');
+      var js = document.getElementById('jsfullscreen');
+      js.style.width = window.innerWidth + 'px';
+      js.style.height = window.innerHeight + 'px';
+
+      js.innerHTML = 'css box size:<br>' +
+          'width: ' + css.getBoundingClientRect().width + '<br>' +
+          'height: ' + css.getBoundingClientRect().height + '<br>' +
+          '<hr>' +
+          'js box size: <br>' +
+          'width: ' + js.getBoundingClientRect().width + '<br>' +
+          'height: ' + js.getBoundingClientRect().height + '<br>' +
+          '<hr>' +
+          'window size: <br>' +
+          'innerWidth: ' + window.innerWidth + '<br>' +
+          'innerHeight: ' + window.innerHeight;
+
+    };
+    window.onload = report;
+    window.onresize = report;
+  </script>
+</head>
+<body>
+<div id="cssfullscreen">
+<p>看到这行字，说明高度有问题</p>
+</div>
+<div id="jsfullscreen">
+
+</div>
+</body>
+</html>
