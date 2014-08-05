@@ -10,6 +10,21 @@
 <h1>这个 bug 必须在 Android 4.4 一下内置默认 WebView 内才会产生</h1>
 <small>百度 T5 内核也有同样问题</small>
 <a href="./page2.html">点我去下一页</a>
-<iframe src="http://www.baidu.com" height="300" width="320"></iframe>
+<div id="test"></div>
+
+<script>
+  var iframe = document.createElement('iframe');
+  iframe.height = 0;
+  iframe.scrolling = 0;
+  iframe.src = 'http://www.baidu.com';
+
+  var t = document.getElementById('test');
+
+  t.appendChild(iframe);
+
+  setTimeout(function() {
+    iframe.height = 300;
+  }, 100)
+</script>
 </body>
 </html>
